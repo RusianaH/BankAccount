@@ -1,5 +1,7 @@
 # Basic-Banking-System-
+
 **function Deposite**
+
     - user inputs the amount of balance to be deposited
     - user cannot input string, if amount input string, error alert will appear
     - minimum deposited balance of 10000
