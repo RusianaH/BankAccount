@@ -1,30 +1,52 @@
 
 const { ResponseTemplate } = require('../helper/template.helper')
 const Joi = require('joi');
+const bcrypt = require('bcrypt');
 
 const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()
 
 function CheckUser(req, res, next) {
-    const schema = Joi.object({
-        name: Joi.string().alphanum().max(255).required(),
-        email: Joi.string().email().required(),
-        password: Joi.string().alphanum().min(8).required()
-    })
+        const schema = Joi.object({
+            name: Joi.string().alphanum().max(255).required(),
+            email: Joi.string().email().required(),
+            password: Joi.string().alphanum().min(8).required()
+        })
+    // get error
+        const validationResult = schema.validate(req.body, {
+            abortEarly: false 
+            
+        })
 
-    const validationResult = schema.validate(req.body);
+    if (validationResult.error) {
+        // Data tidak valid
+        const errorMessage = validationResult.error.details[0].message;
+        res.status(400).json({ error: errorMessage });
+    } else {
+        // Data valid
+        next();
 
-if (validationResult.error) {
-    // Data tidak valid
-    const errorMessage = validationResult.error.details[0].message;
-    res.status(400).json({ error: errorMessage });
-} else {
-    // Data valid
-    next();
+    }
 }
 
+async function HashPassword(req, res, next) {
+    const { password } = req.body;
+    
+    if (password) {
+        try {
+            const saltRounds = 10; // Number of hashing rounds
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+            req.body.password = hashedPassword;
+            next();
+        } catch (error) {
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    } else {
+        next();
+    }
 }
+
 async function CheckProfile(req, res, next) {
     try {
         const user = await prisma.users.findUnique({
@@ -47,6 +69,7 @@ async function CheckProfile(req, res, next) {
     }
 }
 
+
 function validateRequest(schema) {
     return (req, res, next) => {
         const { error } = schema.validate(req.body);
@@ -64,5 +87,6 @@ function validateRequest(schema) {
 
 module.exports = {
     CheckUser,
-    CheckProfile
+    CheckProfile,
+    HashPassword
 }
