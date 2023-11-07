@@ -1,3 +1,5 @@
+
+
 function ResponseTemplate(data, message, error, status) {
     return {
         data,
@@ -7,4 +9,4 @@ function ResponseTemplate(data, message, error, status) {
     }
 }
 
-module.exports = { ResponseTemplate }
+module.exports = {ResponseTemplate}

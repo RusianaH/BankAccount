@@ -10,7 +10,8 @@ router.use(morgan('dev'))
 
 
 router.use('/users', userRoute);
-router.use('/profile', profileRoute);
+router.use('/users/register', profileRoute)
+// router.use('/profile', profileRoute);
 router.use('/account', accountRoute);
 router.use('/transactions', transaksiRoute);
 

@@ -1,17 +1,16 @@
 
-const { ResponseTemplate } = require('../helper/template.helper')
-const Joi = require('joi');
-const bcrypt = require('bcrypt');
+const {ResponseTemplate}= require('../helper/template.helper')
+const { object, string } = require ('joi');
 
-const { PrismaClient } = require('@prisma/client')
+const { PrismaClient } = require ('@prisma/client');
 
 const prisma = new PrismaClient()
 
 function CheckUser(req, res, next) {
-        const schema = Joi.object({
-            name: Joi.string().alphanum().max(255).required(),
-            email: Joi.string().email().required(),
-            password: Joi.string().alphanum().min(8).required()
+        const schema = object({
+            name: string().alphanum().max(255).required(),
+            email: string().email().required(),
+            password: string().alphanum().min(8).required()
         })
     // get error
         const validationResult = schema.validate(req.body, {
@@ -27,23 +26,6 @@ function CheckUser(req, res, next) {
         // Data valid
         next();
 
-    }
-}
-
-async function HashPassword(req, res, next) {
-    const { password } = req.body;
-    
-    if (password) {
-        try {
-            const saltRounds = 10; // Number of hashing rounds
-            const hashedPassword = await bcrypt.hash(password, saltRounds);
-            req.body.password = hashedPassword;
-            next();
-        } catch (error) {
-            return res.status(500).json({ message: 'Internal server error' });
-        }
-    } else {
-        next();
     }
 }
 
@@ -87,6 +69,5 @@ function validateRequest(schema) {
 
 module.exports = {
     CheckUser,
-    CheckProfile,
-    HashPassword
-}
+    CheckProfile
+};
